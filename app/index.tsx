@@ -4,6 +4,7 @@ import * as SQLite from 'expo-sqlite';
 
 let db: SQLite.SQLiteDatabase | null = null;
 
+//Setting up database or Opening up database
 const setupDatabase = async () => {
   db = await SQLite.openDatabaseAsync('items.db');
   await db.execAsync('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);');
@@ -17,12 +18,14 @@ export default function App() {
     setupDatabase().then(fetchItems);
   }, []);
 
+  //fetching the data from the database
   const fetchItems = async () => {
     if (!db) return;
     const results = await db.getAllAsync<{ id: number; name: string }>('SELECT id, name FROM items;');
     setItems(results.map(row => ({ id: row.id, name: row.name })));
   };
 
+  //INSERT or adding data on the database
   const addItem = async () => {
     if (db === null || text === '') return;
     await db.runAsync('INSERT INTO items (name) VALUES (?);', [text]);
@@ -30,6 +33,7 @@ export default function App() {
     fetchItems();
   };
 
+  //DELETE data or deleting data on the database
   const deleteItem = async (id: number) => {
     if (db === null) return;
     await db.runAsync('DELETE FROM items WHERE id = ?;', [id]);
